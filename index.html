@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.css"/>
+<script src="https://unpkg.com/leaflet-draw@1.0.4/dist/leaflet.draw.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
@@ -175,6 +177,14 @@
   .dl.measures{background:var(--teal)}
   img.tilefade{transition:opacity .55s ease}
   .leaflet-control-zoom{border:0!important;box-shadow:0 8px 22px -12px rgba(12,37,54,.5)!important}
+.modeseg,.customseg{display:flex;gap:6px;background:var(--paper);border:1px solid var(--line);border-radius:11px;padding:4px;margin-bottom:10px}
+  .modeseg button,.customseg button{flex:1;border:0;background:transparent;padding:9px 0;border-radius:8px;font-family:var(--body);font-weight:600;font-size:12px;color:var(--muted);cursor:pointer;transition:.2s}
+  .modeseg button.on,.customseg button.on{background:var(--teal);color:#fff}
+  .opt{font-weight:400;color:#9FB1BB;font-size:10.5px}
+  .hint{font-size:12px;color:var(--muted);line-height:1.55;margin:8px 0 10px}
+  #fileinput{width:100%;font-size:12px;padding:9px;border:1px dashed var(--line);border-radius:10px;background:var(--paper);cursor:pointer}
+  .custstatus{font-family:var(--mono);font-size:11px;margin-top:9px;color:var(--muted);line-height:1.5}
+  .leaflet-draw{margin-top:88px!important}
   /* floating chatbot */
   .fab{position:fixed;bottom:22px;right:22px;z-index:4000;width:62px;height:62px;border-radius:50%;
        background:linear-gradient(135deg,#16A34A,#15803D 40%,#2563EB);background-size:200% 200%;
@@ -229,10 +239,43 @@
 
       <div class="block reveal" style="animation-delay:.1s">
         <p class="blabel">Study area</p>
-        <label class="f">State</label>
-        <select id="state" disabled><option>Loading states…</option></select>
-        <label class="f">District</label>
-        <select id="district" disabled><option>Select a state first</option></select>
+        <div class="modeseg" id="modeseg">
+          <button class="on" data-m="admin">Administrative</button>
+          <button data-m="watershed">Watershed</button>
+          <button data-m="custom">Custom</button>
+        </div>
+
+        <div id="pane-admin">
+          <label class="f">State</label>
+          <select id="state" disabled><option>Loading states…</option></select>
+          <label class="f">District <span class="opt">(optional — blank = whole state)</span></label>
+          <select id="district" disabled><option>Select a state first</option></select>
+        </div>
+
+        <div id="pane-watershed" style="display:none">
+          <label class="f">Basin</label>
+          <select id="basin" disabled><option>Loading basins…</option></select>
+          <label class="f">Sub-Basin <span class="opt">(optional)</span></label>
+          <select id="subbasin" disabled><option>Select a basin first</option></select>
+          <label class="f">Watershed <span class="opt">(optional)</span></label>
+          <select id="watershed" disabled><option>Select a sub-basin first</option></select>
+        </div>
+
+        <div id="pane-custom" style="display:none">
+          <div class="customseg" id="customseg">
+            <button class="on" data-c="draw">Draw polygon</button>
+            <button data-c="upload">Upload file</button>
+          </div>
+          <div id="custom-draw">
+            <p class="hint">Use the polygon/rectangle tool on the map (top-left) to draw your area, then Run.</p>
+            <button class="dl" id="cleardraw" style="background:#6B7280">Clear drawing</button>
+          </div>
+          <div id="custom-upload" style="display:none">
+            <p class="hint">Upload a zipped shapefile (.zip) or a GeoJSON (.geojson / .json).</p>
+            <input type="file" id="fileinput" accept=".zip,.geojson,.json">
+            <div class="custstatus" id="custstatus"></div>
+          </div>
+        </div>
       </div>
 
       <div class="block reveal" style="animation-delay:.16s">
@@ -376,6 +419,7 @@ function initMap(){
   L.control.zoom({position:'bottomright'}).addTo(map);
   L.control.scale({position:'bottomright',imperial:false}).addTo(map);
   base=L.tileLayer(BASEMAPS.topo,{attribution:'Tiles © Esri'}).addTo(map);
+  initDraw();
 }
 function setBasemap(b){ if(base)map.removeLayer(base);
   base=L.tileLayer(BASEMAPS[b],{attribution:'Tiles © Esri'}).addTo(map);
@@ -393,8 +437,17 @@ const showErr=m=>{const e=$('err');e.textContent=m;e.style.display='block';};
 const clearErr=()=>$('err').style.display='none';
 const bar=on=>$('topbar').style.display=on?'block':'none';
 const fmtDate=s=>{if(!s)return'';const[y,m,d]=s.split('-');return d+'/'+m+'/'+y;};
-function curParams(){return{state:$('state').value,district:$('district').value,start_date:$('start').value,
-  end_date:$('end').value,data_source:$('source').value,model:$('model').value,scenario:$('scenario').value};}
+let currentMode='admin',customMode='draw',customGeojson=null,drawnItems=null,drawControl=null;
+function buildBody(){const b={start_date:$('start').value,end_date:$('end').value,
+  data_source:$('source').value,model:$('model').value,scenario:$('scenario').value,mode:currentMode};
+  if(currentMode==='admin'){b.state=$('state').value;b.district=$('district').value||null;}
+  else if(currentMode==='watershed'){b.basin=$('basin').value;b.sub_basin=$('subbasin').value||null;b.watershed=$('watershed').value||null;}
+  else if(currentMode==='custom'){b.geojson=customGeojson;b.name='Custom area';}
+  return b;}
+function curParams(){return buildBody();}
+function readyToRun(){if(currentMode==='admin')return !!$('state').value;
+  if(currentMode==='watershed')return !!$('basin').value;
+  if(currentMode==='custom')return !!customGeojson;return false;}
 function countUp(el,t){if(reduce){el.textContent=t.toFixed(1);return;}
   const t0=performance.now();(function s(n){const k=Math.min(1,(n-t0)/850);const e=1-Math.pow(1-k,3);
     el.textContent=(t*e).toFixed(1);if(k<1)requestAnimationFrame(s);})(t0);}
@@ -407,19 +460,86 @@ async function loadCmip6(){try{const d=await api('/api/cmip6');
   $('scenario').innerHTML='<option value="">Select scenario</option>'+d.scenarios.map(n=>`<option>${n}</option>`).join('');
   $('model').disabled=false;$('scenario').disabled=false;}catch(e){}}
 
-async function zoomTo(st,di){try{const q='/api/bounds?state='+encodeURIComponent(st)+(di?'&district='+encodeURIComponent(di):'');
-  const d=await api(q);if(outlineLayer){map.removeLayer(outlineLayer);outlineLayer=null;}
-  if(di&&d.outline)outlineLayer=L.geoJSON(d.outline,{style:{color:'#22B8C4',weight:2.5,fill:false}}).addTo(map);
-  map.flyToBounds(d.bbox,{duration:reduce?0:1.0,padding:[40,40]});}catch(e){}}
+function drawOutline(gj){if(outlineLayer){map.removeLayer(outlineLayer);outlineLayer=null;}
+  if(gj){try{outlineLayer=L.geoJSON(gj,{style:{color:'#22B8C4',weight:2.5,fill:false}}).addTo(map);}catch(e){}}}
+async function previewArea(){
+  if(currentMode==='custom')return;
+  if(!readyToRun())return;
+  try{const d=await api('/api/bounds',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(buildBody())});
+    drawOutline(d.outline);if(d.bbox)map.flyToBounds(d.bbox,{duration:reduce?0:1.0,padding:[40,40]});}catch(e){}}
 
+// drawing tools (custom mode)
+function initDraw(){drawnItems=new L.FeatureGroup().addTo(map);
+  drawControl=new L.Control.Draw({position:'topleft',
+    draw:{polygon:{showArea:true},rectangle:{},polyline:false,circle:false,marker:false,circlemarker:false},
+    edit:{featureGroup:drawnItems}});
+  map.on(L.Draw.Event.CREATED,e=>{drawnItems.clearLayers();drawnItems.addLayer(e.layer);
+    customGeojson=e.layer.toGeoJSON().geometry;
+    map.fitBounds(e.layer.getBounds(),{padding:[40,40]});
+    $('status').textContent='Polygon ready — click Run.';});}
+function showDraw(on){if(!drawControl)return;if(on)map.addControl(drawControl);else map.removeControl(drawControl);}
+function setCustomGeojson(gj,label){customGeojson=gj;drawOutline(gj);
+  try{map.fitBounds(outlineLayer.getBounds(),{padding:[40,40]});}catch(e){}
+  $('custstatus').textContent=(label||'Area loaded')+' — ready to run.';$('status').textContent='Custom area ready — click Run.';}
+
+// mode switch
+$('modeseg').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+  $('modeseg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  currentMode=b.dataset.m;
+  $('pane-admin').style.display=currentMode==='admin'?'block':'none';
+  $('pane-watershed').style.display=currentMode==='watershed'?'block':'none';
+  $('pane-custom').style.display=currentMode==='custom'?'block':'none';
+  if(outlineLayer){map.removeLayer(outlineLayer);outlineLayer=null;}
+  showDraw(currentMode==='custom'&&customMode==='draw');
+  if(currentMode==='watershed'&&$('basin').disabled)loadBasins();
+  $('status').textContent='Define a study area, then Run.';}));
+
+// administrative
 $('state').addEventListener('change',async e=>{const st=e.target.value,dd=$('district');
   if(!st){dd.innerHTML='<option>Select a state first</option>';dd.disabled=true;return;}
-  dd.disabled=true;dd.innerHTML='<option>Loading…</option>';$('status').textContent='Loading districts in '+st+'…';zoomTo(st,null);
+  dd.disabled=true;dd.innerHTML='<option>Loading…</option>';previewArea();
   try{const d=await api('/api/districts?state='+encodeURIComponent(st));
-    dd.innerHTML='<option value="">Select a district</option>'+d.districts.map(n=>`<option>${n}</option>`).join('');
-    dd.disabled=false;$('status').textContent=st+' loaded — choose a district.';}catch(err){showErr(err.message);}});
-$('district').addEventListener('change',e=>{if(e.target.value){zoomTo($('state').value,e.target.value);
-  $('status').textContent=e.target.value+' selected — ready to run.';}});
+    dd.innerHTML='<option value="">Whole state</option>'+d.districts.map(n=>`<option>${n}</option>`).join('');
+    dd.disabled=false;$('status').textContent=st+' selected — Run, or pick a district.';}catch(err){showErr(err.message);}});
+$('district').addEventListener('change',()=>{previewArea();
+  $('status').textContent=($('district').value||$('state').value)+' selected — ready to run.';});
+
+// watershed
+async function loadBasins(){try{const d=await api('/api/basins');
+  $('basin').innerHTML='<option value="">Select a basin</option>'+d.basins.map(n=>`<option>${n}</option>`).join('');
+  $('basin').disabled=false;}catch(e){showErr('Could not load basins. '+e.message);}}
+$('basin').addEventListener('change',async e=>{const ba=e.target.value,sb=$('subbasin');
+  $('watershed').innerHTML='<option>Select a sub-basin first</option>';$('watershed').disabled=true;
+  if(!ba){sb.innerHTML='<option>Select a basin first</option>';sb.disabled=true;return;}
+  previewArea();sb.disabled=true;sb.innerHTML='<option>Loading…</option>';
+  try{const d=await api('/api/subbasins?basin='+encodeURIComponent(ba));
+    sb.innerHTML='<option value="">Whole basin</option>'+d.sub_basins.map(n=>`<option>${n}</option>`).join('');
+    sb.disabled=false;$('status').textContent=ba+' basin selected — Run, or pick a sub-basin.';}catch(e){}});
+$('subbasin').addEventListener('change',async e=>{const sb=e.target.value,ws=$('watershed');
+  if(!sb){ws.innerHTML='<option>Select a sub-basin first</option>';ws.disabled=true;previewArea();return;}
+  previewArea();ws.disabled=true;ws.innerHTML='<option>Loading…</option>';
+  try{const d=await api('/api/watersheds?basin='+encodeURIComponent($('basin').value)+'&sub_basin='+encodeURIComponent(sb));
+    ws.innerHTML='<option value="">Whole sub-basin</option>'+d.watersheds.map(n=>`<option>${n}</option>`).join('');
+    ws.disabled=false;$('status').textContent=sb+' sub-basin selected — Run, or pick a watershed.';}catch(e){}});
+$('watershed').addEventListener('change',()=>{previewArea();});
+
+// custom: draw vs upload
+$('customseg').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
+  $('customseg').querySelectorAll('button').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+  customMode=b.dataset.c;
+  $('custom-draw').style.display=customMode==='draw'?'block':'none';
+  $('custom-upload').style.display=customMode==='upload'?'block':'none';
+  showDraw(currentMode==='custom'&&customMode==='draw');}));
+$('cleardraw').addEventListener('click',()=>{if(drawnItems)drawnItems.clearLayers();customGeojson=null;
+  if(outlineLayer){map.removeLayer(outlineLayer);outlineLayer=null;}$('status').textContent='Draw a polygon, then Run.';});
+$('fileinput').addEventListener('change',async e=>{const file=e.target.files[0];if(!file)return;
+  $('custstatus').textContent='Loading '+file.name+'…';
+  try{if(/\.(geojson|json)$/i.test(file.name)){const txt=await file.text();setCustomGeojson(JSON.parse(txt),file.name);}
+    else if(/\.zip$/i.test(file.name)){const fd=new FormData();fd.append('file',file);
+      const r=await fetch(BACKEND+'/api/shapefile',{method:'POST',body:fd});const d=await r.json();
+      if(!r.ok)throw new Error(d.error||'parse failed');setCustomGeojson(d.geojson,file.name);}
+    else throw new Error('Use a .zip shapefile or .geojson file.');
+  }catch(err){$('custstatus').textContent='Failed: '+err.message;}});
 $('source').addEventListener('change',e=>{const f=e.target.value==='future';$('futureBox').style.display=f?'block':'none';
   $('start').value=f?'2040-01-01':'2022-01-01';$('end').value=f?'2049-12-31':'2023-12-31';if(f&&$('model').disabled)loadCmip6();});
 
@@ -439,16 +559,19 @@ function setLayer(which){if(!lastResult)return;const target=$('opacity').value/1
   const b=(outlineLayer&&outlineLayer.getBounds&&outlineLayer.getBounds().isValid())?outlineLayer.getBounds():lastResult.bbox;
   if(b)map.flyToBounds(b,{duration:reduce?0:.6,padding:[40,40]});}
 
-$('reset').addEventListener('click',()=>{$('state').value='';$('district').innerHTML='<option>Select a state first</option>';
-  $('district').disabled=true;$('source').value='historical';$('futureBox').style.display='none';
+$('reset').addEventListener('click',()=>{$('state').value='';$('district').innerHTML='<option>Select a state first</option>';$('district').disabled=true;
+  $('subbasin').innerHTML='<option>Select a basin first</option>';$('subbasin').disabled=true;
+  $('watershed').innerHTML='<option>Select a sub-basin first</option>';$('watershed').disabled=true;if($('basin').value)$('basin').value='';
+  customGeojson=null;if(drawnItems)drawnItems.clearLayers();$('custstatus').textContent='';
+  $('source').value='historical';$('futureBox').style.display='none';
   $('start').value='2022-01-01';$('end').value='2023-12-31';clearErr();
   ['resultBlock','layerBlock','chartBlock'].forEach(id=>$(id).style.display='none');
   $('titleplate').style.display='none';$('maplegend').style.display='none';
   if(overlay)map.removeLayer(overlay);if(outlineLayer)map.removeLayer(outlineLayer);
-  lastResult=null;map.flyTo([22.2,79.0],5);$('status').textContent='Choose a state and district to begin.';});
+  lastResult=null;map.flyTo([22.2,79.0],5);$('status').textContent='Define a study area, then Run.';});
 
 $('run').addEventListener('click',async()=>{clearErr();const p=curParams();
-  if(!p.state||!p.district)return showErr('Select both a state and a district.');
+  if(!readyToRun())return showErr('Select or define a study area first.');
   if(p.data_source==='future'&&(!p.model||!p.scenario))return showErr('Choose a climate model and scenario for future projections.');
   lastParams=p;bar(true);$('run').disabled=true;$('status').textContent='Computing layers and totals…';
   try{const d=await api('/api/runoff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
