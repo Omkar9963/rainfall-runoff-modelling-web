@@ -155,8 +155,52 @@
   .logobadge img{height:100%;width:auto;object-fit:contain}
   .logo-tl{top:20px;left:20px}
   .logo-tr{top:20px;right:20px}
+  .zones{margin-top:16px;display:none}
+  .zones .zt{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .zone{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;margin:5px 0}
+  .zone .zl{width:140px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .zone .ztrack{flex:1;height:9px;border-radius:5px;background:#EDF2F4;overflow:hidden}
+  .zone .zbar{height:100%;border-radius:5px;background:linear-gradient(90deg,#FDBA74,#EA580C)}
+  .zone .zv{width:54px;text-align:right;color:var(--runoff);font-weight:700}
+  .chat{height:240px;overflow-y:auto;border:1px solid var(--line);border-radius:16px;padding:13px;
+        background:linear-gradient(160deg,#F4FAFB,#fff);display:flex;flex-direction:column;gap:10px}
+  .msg{max-width:88%;padding:10px 13px;border-radius:15px;font-size:13px;line-height:1.55;white-space:pre-wrap}
+  .msg.u{align-self:flex-end;background:var(--grad);color:#fff;border-bottom-right-radius:5px}
+  .msg.a{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:5px}
+  .msg.t{align-self:flex-start;color:var(--muted);font-family:var(--mono);font-size:11px}
+  .chatin{display:flex;gap:9px;margin-top:11px}
+  .chatin input{flex:1;padding:12px 13px;border:1px solid var(--line);border-radius:12px;font-family:var(--body);font-size:13px}
+  .chatin input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(34,184,196,.18)}
+  .chatin button{width:48px;border:0;border-radius:12px;background:var(--grad);color:#fff;font-size:17px;cursor:pointer}
+  .dl.measures{background:var(--teal)}
   img.tilefade{transition:opacity .55s ease}
   .leaflet-control-zoom{border:0!important;box-shadow:0 8px 22px -12px rgba(12,37,54,.5)!important}
+  /* floating chatbot */
+  .fab{position:fixed;bottom:22px;right:22px;z-index:4000;width:62px;height:62px;border-radius:50%;
+       background:var(--grad);background-size:200% 200%;animation:grad 8s ease infinite;border:0;cursor:pointer;
+       box-shadow:0 14px 32px -10px rgba(12,37,54,.55);display:flex;align-items:center;justify-content:center}
+  .fab svg{width:32px;height:32px}
+  .fab:hover{filter:brightness(1.07)}
+  .greet{position:fixed;bottom:96px;right:24px;z-index:4000;background:#fff;border:1px solid var(--line);
+       border-radius:14px 14px 4px 14px;padding:12px 30px 12px 14px;max-width:240px;font-size:12.5px;line-height:1.5;
+       color:var(--ink);box-shadow:0 14px 32px -14px rgba(12,37,54,.5);animation:rise .4s}
+  .greet b{color:var(--teal)}
+  .greet .x{position:absolute;top:7px;right:10px;cursor:pointer;color:var(--muted);font-size:13px}
+  .chatwin{position:fixed;bottom:22px;right:22px;z-index:4001;width:380px;max-width:calc(100vw - 32px);
+       height:540px;max-height:calc(100vh - 44px);background:#fff;border:1px solid var(--line);border-radius:18px;
+       display:none;flex-direction:column;overflow:hidden;box-shadow:0 26px 64px -20px rgba(12,37,54,.6)}
+  .chatwin.open{display:flex;animation:rise .35s}
+  .cwhead{background:var(--grad);background-size:200% 200%;animation:grad 9s ease infinite;color:#fff;
+       padding:14px 16px;display:flex;align-items:center;gap:11px}
+  .cwhead svg{width:28px;height:28px}
+  .cwhead .t{font-family:var(--disp);font-weight:600;font-size:15px;flex:1;line-height:1.1}
+  .cwhead .t small{display:block;font-family:var(--mono);font-size:9px;letter-spacing:.14em;opacity:.85;text-transform:uppercase;margin-top:3px}
+  .cwhead button{background:rgba(255,255,255,.22);border:0;color:#fff;width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1}
+  .cwbody{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:linear-gradient(160deg,#F4FAFB,#fff)}
+  .cwfoot{display:flex;gap:9px;padding:12px;border-top:1px solid var(--line)}
+  .cwfoot input{flex:1;padding:12px 13px;border:1px solid var(--line);border-radius:12px;font-family:var(--body);font-size:13px}
+  .cwfoot input:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px rgba(34,184,196,.18)}
+  .cwfoot button{width:48px;border:0;border-radius:12px;background:var(--grad);color:#fff;font-size:17px;cursor:pointer}
   @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -219,6 +263,7 @@
           <div class="readout run"><div class="rk">Runoff</div><div class="rv"><span id="vRun">0</span><span class="ru">mm</span></div></div>
         </div>
         <div class="daysnote" id="daysnote"></div>
+        <div class="zones" id="zones"><div class="zt">Runoff by zone (mm)</div><div id="zonebody"></div></div>
       </div>
 
       <div class="block reveal" id="layerBlock" style="display:none">
@@ -237,6 +282,12 @@
         <div class="chartwrap"><div class="chartload" id="chartload"><span class="dot"></span>Computing daily series…</div>
           <canvas id="chart"></canvas></div>
         <button class="dl csv" id="csv">Download daily data — CSV</button>
+      </div>
+
+      <div class="block reveal" id="aiBlock" style="display:none">
+        <p class="blabel">Assistant</p>
+        <p class="lede" style="font-size:13px">Open the chat at the bottom-right to ask about this area — runoff by part or month, soil, land use, locations and measures.</p>
+        <button class="dl measures" id="measures">Suggest conservation measures</button>
       </div>
 
       <div class="acc reveal" style="animation-delay:.22s">
@@ -283,7 +334,7 @@
 <script>
 const BACKEND = "https://omkar996312-rainfall-runoff-dss-api.hf.space";
 const $=id=>document.getElementById(id);
-let map,base,overlay,outlineLayer,chart,lastResult=null,lastParams=null,lastSeries=null,lastArea='area';
+let map,base,overlay,outlineLayer,chart,lastResult=null,lastParams=null,lastSeries=null,lastArea='area',lastContext=null,chatHistory=[];
 const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 const SEG_COLOR={rainfall:'#2563EB',runoff:'#EA580C',dem:'#15803D'};
 const BASEMAPS={
@@ -356,7 +407,9 @@ function setLayer(which){if(!lastResult)return;const target=$('opacity').value/1
   if(!reduce)requestAnimationFrame(()=>setTimeout(()=>nl.setOpacity(target),20));
   if(old){if(!reduce)old.setOpacity(0);setTimeout(()=>map.removeLayer(old),reduce?0:600);}
   if(which==='dem')drawLegend(lastResult.legend.dem,'Elevation');
-  else drawLegend(lastResult.legend[which],which==='rainfall'?'Rainfall':'Runoff');}
+  else drawLegend(lastResult.legend[which],which==='rainfall'?'Rainfall':'Runoff');
+  const b=(outlineLayer&&outlineLayer.getBounds&&outlineLayer.getBounds().isValid())?outlineLayer.getBounds():lastResult.bbox;
+  if(b)map.flyToBounds(b,{duration:reduce?0:.6,padding:[40,40]});}
 
 $('reset').addEventListener('click',()=>{$('state').value='';$('district').innerHTML='<option>Select a state first</option>';
   $('district').disabled=true;$('source').value='historical';$('futureBox').style.display='none';
@@ -371,7 +424,7 @@ $('run').addEventListener('click',async()=>{clearErr();const p=curParams();
   if(p.data_source==='future'&&(!p.model||!p.scenario))return showErr('Choose a climate model and scenario for future projections.');
   lastParams=p;bar(true);$('run').disabled=true;$('status').textContent='Computing layers and totals…';
   try{const d=await api('/api/runoff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
-    renderLayers(d,p);$('status').textContent='Layers ready — computing daily series…';loadSeries(p);
+    renderLayers(d,p);$('status').textContent='Layers ready — computing daily series…';loadSeries(p);loadContext(p);
   }catch(e){showErr(e.message);$('status').textContent='Run failed. Adjust the inputs and try again.';}
   finally{bar(false);$('run').disabled=false;}});
 
@@ -431,6 +484,51 @@ $('download').addEventListener('click',async()=>{if(!lastParams)return;const btn
   }catch(e){showErr('Export failed — large districts can exceed the direct-download limit. '+e.message);}
   finally{btn.textContent=t;btn.disabled=false;}});
 
+async function loadContext(p){
+  $('zones').style.display='none';
+  try{const d=await api('/api/context',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
+    lastContext=d;renderZones(d.runoff_by_zone);
+    $('aiBlock').style.display='block';$('chat').innerHTML='';chatHistory=[];
+    addMsg('a','Ask me anything about this area — which part or which month has the most runoff, the soil and land use, locations, or what conservation measures would help.');
+  }catch(e){}}
+function renderZones(zones){if(!zones||!zones.length)return;
+  const max=Math.max(...zones.map(z=>z.runoff_mm))||1;
+  $('zonebody').innerHTML=zones.slice(0,6).map(z=>{
+    const nm=z.place?z.zone+' · '+z.place:z.zone;
+    return `<div class="zone"><span class="zl" title="${nm}">${nm}</span><span class="ztrack"><span class="zbar" style="width:${Math.max(4,z.runoff_mm/max*100)}%"></span></span><span class="zv">${z.runoff_mm}</span></div>`;}).join('');
+  $('zones').style.display='block';}
+function addMsg(role,text){const d=document.createElement('div');d.className='msg '+role;d.textContent=text;
+  $('chat').appendChild(d);$('chat').scrollTop=$('chat').scrollHeight;return d;}
+function summarizeMonthly(series){if(!series)return[];const m={};
+  series.forEach(p=>{const k=(p.date||'').slice(0,7);if(!k)return;
+    if(!m[k])m[k]={month:k,rainfall_mm:0,runoff_mm:0};
+    m[k].rainfall_mm+=p.rainfall||0;m[k].runoff_mm+=p.runoff||0;});
+  return Object.values(m).map(x=>({month:x.month,rainfall_mm:+x.rainfall_mm.toFixed(1),runoff_mm:+x.runoff_mm.toFixed(1)}));}
+function peakDay(series){if(!series||!series.length)return null;
+  let best=series[0];series.forEach(p=>{if((p.runoff||0)>(best.runoff||0))best=p;});
+  return{date:best.date,runoff_mm:+(best.runoff||0).toFixed(1),rainfall_mm:+(best.rainfall||0).toFixed(1)};}
+function buildContext(){const c=Object.assign({},lastContext||{});
+  if(lastSeries&&lastSeries.length){c.monthly_totals_mm=summarizeMonthly(lastSeries);c.peak_runoff_day=peakDay(lastSeries);}
+  return c;}
+async function askAI(text){if(!text)return;
+  if(!lastContext){addMsg('a','Run an analysis first so I have data to work with.');return;}
+  addMsg('u',text);chatHistory.push({role:'user',content:text});
+  const tip=addMsg('t','Thinking…');
+  try{const d=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({question:text,context:buildContext(),history:chatHistory})});
+    tip.remove();addMsg('a',d.answer);chatHistory.push({role:'assistant',content:d.answer});
+  }catch(e){tip.remove();addMsg('a','Sorry — '+e.message);}}
+$('send').addEventListener('click',()=>{const v=$('q').value.trim();if(v){$('q').value='';askAI(v);}});
+$('q').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=$('q').value.trim();if(v){$('q').value='';askAI(v);}}});
+function openChat(){$('chatwin').classList.add('open');$('greet').style.display='none';$('fab').style.display='none';$('q').focus();}
+function closeChat(){$('chatwin').classList.remove('open');$('fab').style.display='flex';}
+$('fab').addEventListener('click',openChat);
+$('cwmin').addEventListener('click',closeChat);
+$('cwclose').addEventListener('click',closeChat);
+$('greetx').addEventListener('click',()=>$('greet').style.display='none');
+setTimeout(()=>{if(!$('chatwin').classList.contains('open'))$('greet').style.display='block';},1200);
+$('measures').addEventListener('click',()=>{openChat();askAI('Suggest soil and water conservation measures suited to this area.');});
+
 $('csv').addEventListener('click',()=>{if(!lastSeries||!lastSeries.length)return;
   const rows=[['date','rainfall_mm','runoff_mm'],...lastSeries.map(p=>[p.date,p.rainfall??'',p.runoff??''])];
   const csv=rows.map(r=>r.join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'});
@@ -439,5 +537,31 @@ $('csv').addEventListener('click',()=>{if(!lastSeries||!lastSeries.length)return
 
 initMap();loadStates();
 </script>
+<button class="fab" id="fab" title="Open assistant">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs>
+    <clipPath id="cf"><path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z"/></clipPath></defs>
+    <path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z" fill="#fff"/>
+    <g clip-path="url(#cf)" stroke="#0E7C86" fill="none" stroke-linecap="round">
+      <path d="M18 64C34 56 44 70 60 64 76 58 88 70 104 62" stroke-width="3" stroke-opacity=".5"/>
+      <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
+</button>
+<div class="greet" id="greet" style="display:none"><span class="x" id="greetx">✕</span>Hi! I'm your <b>runoff assistant</b>. Run an area, then ask me anything about it.</div>
+<div class="chatwin" id="chatwin">
+  <div class="cwhead">
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs>
+      <clipPath id="cw"><path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z"/></clipPath></defs>
+      <path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z" fill="#fff"/>
+      <g clip-path="url(#cw)" stroke="#0E7C86" fill="none" stroke-linecap="round">
+        <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
+    <div class="t">Runoff Assistant<small>SCS-CN · AI</small></div>
+    <button id="cwmin" title="Minimize">—</button>
+    <button id="cwclose" title="Close">✕</button>
+  </div>
+  <div class="cwbody" id="chat"></div>
+  <div class="cwfoot">
+    <input id="q" placeholder="Ask about runoff, soil, months, measures…">
+    <button id="send" title="Send">➤</button>
+  </div>
+</div>
 </body>
 </html>
