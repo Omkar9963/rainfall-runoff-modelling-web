@@ -177,7 +177,8 @@
   .leaflet-control-zoom{border:0!important;box-shadow:0 8px 22px -12px rgba(12,37,54,.5)!important}
   /* floating chatbot */
   .fab{position:fixed;bottom:22px;right:22px;z-index:4000;width:62px;height:62px;border-radius:50%;
-       background:var(--grad);background-size:200% 200%;animation:grad 8s ease infinite;border:0;cursor:pointer;
+       background:linear-gradient(135deg,#16A34A,#15803D 40%,#2563EB);background-size:200% 200%;
+       animation:grad 8s ease infinite;border:0;cursor:pointer;
        box-shadow:0 14px 32px -10px rgba(12,37,54,.55);display:flex;align-items:center;justify-content:center}
   .fab svg{width:32px;height:32px}
   .fab:hover{filter:brightness(1.07)}
@@ -328,6 +329,33 @@
     <div class="plate titleplate" id="titleplate"><div class="pk">Active area</div>
       <div class="pv" id="tpArea">—</div><div class="pp" id="tpPeriod"></div></div>
     <div class="plate maplegend" id="maplegend"><h4 id="mlTitle">Runoff</h4><div id="mlbody"></div></div>
+  </div>
+</div>
+
+<button class="fab" id="fab" title="Open assistant">
+  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs>
+    <clipPath id="cf"><path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z"/></clipPath></defs>
+    <path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z" fill="#fff"/>
+    <g clip-path="url(#cf)" stroke="#0E7C86" fill="none" stroke-linecap="round">
+      <path d="M18 64C34 56 44 70 60 64 76 58 88 70 104 62" stroke-width="3" stroke-opacity=".5"/>
+      <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
+</button>
+<div class="greet" id="greet" style="display:none"><span class="x" id="greetx">✕</span>Hi! I'm your <b>runoff assistant</b>. Run an area, then ask me anything about it.</div>
+<div class="chatwin" id="chatwin">
+  <div class="cwhead">
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs>
+      <clipPath id="cw"><path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z"/></clipPath></defs>
+      <path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z" fill="#fff"/>
+      <g clip-path="url(#cw)" stroke="#0E7C86" fill="none" stroke-linecap="round">
+        <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
+    <div class="t">Runoff Assistant<small>SCS-CN · AI</small></div>
+    <button id="cwmin" title="Minimize">—</button>
+    <button id="cwclose" title="Close">✕</button>
+  </div>
+  <div class="cwbody" id="chat"></div>
+  <div class="cwfoot">
+    <input id="q" placeholder="Ask about runoff, soil, months, measures…">
+    <button id="send" title="Send">➤</button>
   </div>
 </div>
 
@@ -537,31 +565,5 @@ $('csv').addEventListener('click',()=>{if(!lastSeries||!lastSeries.length)return
 
 initMap();loadStates();
 </script>
-<button class="fab" id="fab" title="Open assistant">
-  <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs>
-    <clipPath id="cf"><path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z"/></clipPath></defs>
-    <path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z" fill="#fff"/>
-    <g clip-path="url(#cf)" stroke="#0E7C86" fill="none" stroke-linecap="round">
-      <path d="M18 64C34 56 44 70 60 64 76 58 88 70 104 62" stroke-width="3" stroke-opacity=".5"/>
-      <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
-</button>
-<div class="greet" id="greet" style="display:none"><span class="x" id="greetx">✕</span>Hi! I'm your <b>runoff assistant</b>. Run an area, then ask me anything about it.</div>
-<div class="chatwin" id="chatwin">
-  <div class="cwhead">
-    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg"><defs>
-      <clipPath id="cw"><path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z"/></clipPath></defs>
-      <path d="M60 8C60 8 96 50 96 78A36 36 0 1 1 24 78C24 50 60 8 60 8Z" fill="#fff"/>
-      <g clip-path="url(#cw)" stroke="#0E7C86" fill="none" stroke-linecap="round">
-        <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
-    <div class="t">Runoff Assistant<small>SCS-CN · AI</small></div>
-    <button id="cwmin" title="Minimize">—</button>
-    <button id="cwclose" title="Close">✕</button>
-  </div>
-  <div class="cwbody" id="chat"></div>
-  <div class="cwfoot">
-    <input id="q" placeholder="Ask about runoff, soil, months, measures…">
-    <button id="send" title="Send">➤</button>
-  </div>
-</div>
 </body>
 </html>
