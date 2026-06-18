@@ -30,10 +30,13 @@
   .rail{width:430px;min-width:430px;height:100vh;overflow-y:auto;background:var(--surface);
         border-right:1px solid var(--line);scrollbar-width:thin}
   .rail::-webkit-scrollbar{width:8px}.rail::-webkit-scrollbar-thumb{background:#CDDAE0;border-radius:8px}
-  .railhead{background:var(--grad);color:#fff;padding:28px 26px;display:flex;align-items:center;gap:15px}
+  .railhead{background:var(--grad);background-size:200% 200%;animation:grad 10s ease infinite;color:#fff;padding:30px 26px;display:flex;align-items:center;gap:16px;position:relative;overflow:hidden}
+  .railhead::after{content:'';position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,.12)}
+  @keyframes grad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
   
-  .railhead svg{width:52px;height:52px;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.3))}
-  .railhead .wm{font-family:var(--disp);font-weight:700;font-size:24px;line-height:1.06;letter-spacing:-.01em}
+  
+  .railhead svg{width:66px;height:66px;flex:none;filter:drop-shadow(0 6px 14px rgba(0,0,0,.3))}
+  .railhead .wm{font-family:var(--disp);font-weight:700;font-size:25px;line-height:1.06;letter-spacing:-.01em;position:relative}
   .railhead .wm small{display:block;font-family:var(--mono);font-weight:400;font-size:10.5px;
         letter-spacing:.2em;text-transform:uppercase;opacity:.85;margin-top:5px}
   .inner{padding:26px}
@@ -57,7 +60,7 @@
   .btn{flex:1;border:0;border-radius:11px;padding:13px;font-family:var(--disp);font-weight:600;font-size:14px;
        cursor:pointer;transition:transform .08s,filter .2s,opacity .2s}
   .btn:active{transform:translateY(1px)}
-  .run{background:var(--grad);color:#fff;box-shadow:0 8px 22px -10px var(--teal)}
+  .run{background:var(--grad);background-size:200% 200%;animation:grad 8s ease infinite;color:#fff;box-shadow:0 10px 26px -10px var(--teal),0 0 0 1px rgba(255,255,255,.15) inset}
   .run:hover{filter:brightness(1.07)} .run:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
   .reset{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
   .status{font-size:12px;color:var(--muted);margin-top:14px;min-height:16px;line-height:1.5}
@@ -66,7 +69,8 @@
 
   .readouts{display:grid;grid-template-columns:1fr 1fr;gap:14px}
   .readout{border:1px solid var(--line);border-radius:16px;padding:18px;position:relative;overflow:hidden}
-  .readout.rain{background:linear-gradient(140deg,#EAF2FF,#fff 75%)} .readout.run{background:linear-gradient(140deg,#FFF1E8,#fff 75%)}
+  .readout.rain{background:linear-gradient(140deg,#E3EEFF,#fff 78%)} .readout.run{background:linear-gradient(140deg,#FFEBDD,#fff 78%)}
+  .readout{box-shadow:0 10px 24px -18px rgba(12,37,54,.4)}
   .readout::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px}
   .readout.rain::before{background:var(--rain)} .readout.run::before{background:var(--runoff)}
   .readout.rain .rv{color:var(--rain)} .readout.run .rv{color:var(--runoff)}
@@ -88,11 +92,12 @@
   .legend{margin-top:16px}
   .lrow{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;margin:4px 0}
   .sw{width:24px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.1)}
-  .chartwrap{margin-top:16px;border:1px solid var(--line);border-radius:14px;padding:14px;height:270px;position:relative;background:var(--surface)}
+  .chartwrap{margin-top:16px;border:1px solid var(--line);border-radius:16px;padding:14px;height:270px;position:relative;background:linear-gradient(160deg,#FBFDFE,#fff);box-shadow:0 10px 24px -20px rgba(12,37,54,.4)}
   .chartload{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:8px;
              font-family:var(--mono);font-size:11.5px;color:var(--muted)}
   .dot{width:7px;height:7px;border-radius:50%;background:var(--teal);animation:pulse 1s infinite}
   @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
+  .dl.csv{background:var(--teal)}
   .dl{width:100%;margin-top:16px;background:var(--deep);color:#fff;border:0;border-radius:11px;padding:13px;
       font-family:var(--disp);font-weight:600;font-size:13.5px;cursor:pointer;transition:filter .2s}
   .dl:hover{filter:brightness(1.12)} .dl:disabled{opacity:.6;cursor:wait}
@@ -144,9 +149,9 @@
            cursor:pointer;box-shadow:0 8px 22px -12px rgba(12,37,54,.5);font-size:16px;color:var(--deep)}
   .northarrow{position:absolute;bottom:78px;right:22px;z-index:1000;width:40px;height:40px;opacity:.92;
               filter:drop-shadow(0 4px 8px rgba(0,0,0,.3))}
-  .logobadge{position:absolute;z-index:1001;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);
-        border:1px solid rgba(255,255,255,.6);box-shadow:0 8px 22px -12px rgba(12,37,54,.5);
-        border-radius:12px;padding:7px;height:58px;display:flex;align-items:center}
+  .logobadge{position:absolute;z-index:1001;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);
+        border:1px solid rgba(255,255,255,.7);box-shadow:0 10px 26px -12px rgba(12,37,54,.55);
+        border-radius:14px;padding:9px;height:74px;display:flex;align-items:center}
   .logobadge img{height:100%;width:auto;object-fit:contain}
   .logo-tl{top:20px;left:20px}
   .logo-tr{top:20px;right:20px}
@@ -231,6 +236,7 @@
         <p class="blabel">Daily series</p>
         <div class="chartwrap"><div class="chartload" id="chartload"><span class="dot"></span>Computing daily series…</div>
           <canvas id="chart"></canvas></div>
+        <button class="dl csv" id="csv">Download daily data — CSV</button>
       </div>
 
       <div class="acc reveal" style="animation-delay:.22s">
@@ -277,7 +283,7 @@
 <script>
 const BACKEND = "https://omkar996312-rainfall-runoff-dss-api.hf.space";
 const $=id=>document.getElementById(id);
-let map,base,overlay,outlineLayer,chart,lastResult=null,lastParams=null;
+let map,base,overlay,outlineLayer,chart,lastResult=null,lastParams=null,lastSeries=null,lastArea='area';
 const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 const SEG_COLOR={rainfall:'#2563EB',runoff:'#EA580C',dem:'#15803D'};
 const BASEMAPS={
@@ -390,26 +396,31 @@ function drawLegend(lg,title){const pal=lg.palette,step=(lg.max-lg.min)/pal.leng
 async function loadSeries(p){$('chartBlock').style.display='block';$('chartload').style.display='flex';
   try{const d=await api('/api/timeseries',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
     $('daysnote').textContent=d.n_days+' days · daily resolution · '+d.scale_m+' m sampling';
+    lastSeries=d.series;lastArea=lastResult?lastResult.area:'area';
     const labels=d.series.map(x=>x.date);if(chart)chart.destroy();
     const ctx=$('chart').getContext('2d');
-    const gR=ctx.createLinearGradient(0,0,0,250);gR.addColorStop(0,'rgba(37,99,235,.28)');gR.addColorStop(1,'rgba(37,99,235,0)');
-    const gQ=ctx.createLinearGradient(0,0,0,250);gQ.addColorStop(0,'rgba(234,88,12,.30)');gQ.addColorStop(1,'rgba(234,88,12,0)');
-    chart=new Chart(ctx,{type:'line',data:{labels,datasets:[
-        {label:'Rainfall',data:d.series.map(x=>x.rainfall),borderColor:'#2563EB',backgroundColor:gR,
-         borderWidth:1.8,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:'#2563EB',tension:.35,fill:true},
-        {label:'Runoff',data:d.series.map(x=>x.runoff),borderColor:'#EA580C',backgroundColor:gQ,
-         borderWidth:1.8,pointRadius:0,pointHoverRadius:4,pointHoverBackgroundColor:'#EA580C',tension:.35,fill:true}]},
+    const gQ=ctx.createLinearGradient(0,0,0,250);gQ.addColorStop(0,'rgba(234,88,12,.38)');gQ.addColorStop(1,'rgba(234,88,12,0)');
+    chart=new Chart(ctx,{data:{labels,datasets:[
+        {type:'line',label:'Runoff',data:d.series.map(x=>x.runoff),yAxisID:'y',order:0,
+         borderColor:'#EA580C',backgroundColor:gQ,borderWidth:2,pointRadius:0,pointHoverRadius:4,
+         pointHoverBackgroundColor:'#EA580C',tension:.35,fill:true},
+        {type:'bar',label:'Rainfall',data:d.series.map(x=>x.rainfall),yAxisID:'y1',order:1,
+         backgroundColor:'rgba(37,99,235,.55)',borderWidth:0,maxBarThickness:6,categoryPercentage:1,barPercentage:1}]},
       options:{responsive:true,maintainAspectRatio:false,animation:{duration:reduce?0:700},
         interaction:{mode:'index',intersect:false},
         plugins:{legend:{position:'top',align:'end',labels:{usePointStyle:true,pointStyle:'circle',boxWidth:8,
             font:{family:'Inter',size:11.5,weight:'600'},color:'#0C2536',padding:14}},
           tooltip:{backgroundColor:'rgba(12,37,54,.94)',titleFont:{family:'Space Mono',size:11},
-            bodyFont:{family:'Inter',size:12},padding:11,cornerRadius:9,displayColors:true,
+            bodyFont:{family:'Inter',size:12},padding:11,cornerRadius:9,
             callbacks:{label:c=>' '+c.dataset.label+': '+(c.parsed.y??0).toFixed(1)+' mm'}}},
         scales:{x:{ticks:{maxTicksLimit:6,font:{family:'Space Mono',size:9},color:'#5B7383',maxRotation:0},
             grid:{display:false},border:{color:'#DCE6EB'}},
-          y:{beginAtZero:true,title:{display:true,text:'Depth (mm)',font:{family:'Space Mono',size:10},color:'#5B7383'},
-            ticks:{font:{family:'Space Mono',size:9},color:'#5B7383'},grid:{color:'#EDF2F4'},border:{display:false}}}}});
+          y:{position:'left',beginAtZero:true,title:{display:true,text:'Runoff (mm)',
+            font:{family:'Space Mono',size:10},color:'#EA580C'},
+            ticks:{font:{family:'Space Mono',size:9},color:'#EA580C'},grid:{color:'#EDF2F4'},border:{display:false}},
+          y1:{position:'right',beginAtZero:true,reverse:true,title:{display:true,text:'Rainfall (mm)',
+            font:{family:'Space Mono',size:10},color:'#2563EB'},
+            ticks:{font:{family:'Space Mono',size:9},color:'#2563EB'},grid:{display:false},border:{display:false}}}}});
     $('chartload').style.display='none';$('status').textContent='Done — '+d.n_days+' daily values loaded.';
   }catch(e){$('chartload').innerHTML='Series failed: '+e.message;}}
 
@@ -419,6 +430,12 @@ $('download').addEventListener('click',async()=>{if(!lastParams)return;const btn
     body:JSON.stringify({...lastParams,band:'runoff',scale:500})});window.open(d.url,'_blank');
   }catch(e){showErr('Export failed — large districts can exceed the direct-download limit. '+e.message);}
   finally{btn.textContent=t;btn.disabled=false;}});
+
+$('csv').addEventListener('click',()=>{if(!lastSeries||!lastSeries.length)return;
+  const rows=[['date','rainfall_mm','runoff_mm'],...lastSeries.map(p=>[p.date,p.rainfall??'',p.runoff??''])];
+  const csv=rows.map(r=>r.join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');
+  a.href=url;a.download=(lastArea||'daily').replace(/[^\w]+/g,'_')+'_daily.csv';a.click();URL.revokeObjectURL(url);});
 
 initMap();loadStates();
 </script>
