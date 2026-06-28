@@ -3,8 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rainfall–Runoff DSS</title>
+<title>Rainfall-Runoff DSS</title>
 <link rel="icon" href="logo.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#2563EB">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Runoff DSS">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
@@ -228,13 +235,13 @@
         <g clip-path="url(#c2)" stroke="#0B4F6C" fill="none" stroke-linecap="round">
           <path d="M18 62C34 54 44 68 60 62 76 56 88 68 104 60" stroke-width="2.4" stroke-opacity=".55"/>
           <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.2" stroke-opacity=".95"/></g></svg>
-      <div class="wm">Rainfall–Runoff DSS<small>SCS-CN · Hydrology</small></div>
+      <div class="wm">Rainfall-Runoff DSS<small>SCS-CN · Hydrology</small></div>
     </div>
 
     <div class="inner">
       <div class="block reveal" style="animation-delay:.05s;margin-top:6px">
         <p class="lede">Pick an area and period, and the model estimates daily surface runoff using the
-          Modified SCS–Curve Number method over satellite and reanalysis data.</p>
+          Modified SCS-Curve Number method over satellite and reanalysis data.</p>
       </div>
 
       <div class="block reveal" style="animation-delay:.1s">
@@ -248,7 +255,7 @@
         <div id="pane-admin">
           <label class="f">State</label>
           <select id="state" disabled><option>Loading states…</option></select>
-          <label class="f">District <span class="opt">(optional  blank = whole state)</span></label>
+          <label class="f">District <span class="opt">(optional, blank = whole state)</span></label>
           <select id="district" disabled><option>Select a state first</option></select>
         </div>
 
@@ -282,8 +289,8 @@
         <p class="blabel">Period &amp; source</p>
         <label class="f">Precipitation source</label>
         <select id="source">
-          <option value="historical">Historical  CHIRPS daily</option>
-          <option value="future">Future  CMIP6 projection</option>
+          <option value="historical">Historical (CHIRPS daily)</option>
+          <option value="future">Future (CMIP6 projection)</option>
         </select>
         <label class="f">Start date</label><input type="date" id="start" value="2022-01-01">
         <label class="f">End date</label><input type="date" id="end" value="2023-12-31">
@@ -318,19 +325,19 @@
           <button data-l="dem">Elevation</button></div>
         <div class="opac">Opacity <input type="range" id="opacity" min="0" max="100" value="88"></div>
         <div class="legend" id="legend"></div>
-        <button class="dl" id="download">Download runoff raster  GeoTIFF</button>
+        <button class="dl" id="download">Download runoff raster GeoTIFF</button>
       </div>
 
       <div class="block reveal" id="chartBlock" style="display:none">
         <p class="blabel">Daily series</p>
         <div class="chartwrap"><div class="chartload" id="chartload"><span class="dot"></span>Computing daily series…</div>
           <canvas id="chart"></canvas></div>
-        <button class="dl csv" id="csv">Download daily data  CSV</button>
+        <button class="dl csv" id="csv">Download daily data CSV</button>
       </div>
 
       <div class="block reveal" id="aiBlock" style="display:none">
         <p class="blabel">Assistant</p>
-        <p class="lede" style="font-size:13px">Open the chat at the bottom-right to ask about this area  runoff by part or month, soil, land use, locations and measures.</p>
+        <p class="lede" style="font-size:13px">Open the chat at the bottom-right to ask about this area, runoff by part or month, soil, land use, locations and measures.</p>
         <button class="dl measures" id="measures">Suggest conservation measures</button>
       </div>
 
@@ -341,15 +348,18 @@
             adjusted for slope from the <b>SRTM</b> DEM. A five-day antecedent-rainfall window shifts each cell between
             dry, normal and wet states (AMC I / II / III) before solving the runoff depth.</div></details>
         <details><summary>Data sources <span class="plus">+</span></summary>
-          <div class="src"><span>CHIRPS</span>  daily precipitation<br><span>NEX-GDDP-CMIP6</span>  climate projections<br>
-            <span>MODIS MCD12Q1</span>  land cover<br><span>OpenLandMap</span>  soil texture<br><span>SRTM</span>  elevation &amp; slope</div></details>
+          <div class="src"><span>CHIRPS</span>, daily precipitation<br><span>NEX-GDDP-CMIP6</span>, climate projections<br>
+            <span>MODIS MCD12Q1</span>, land cover<br><span>OpenLandMap</span>, soil texture<br><span>SRTM</span>, elevation &amp; slope</div></details>
         <details><summary>Reading the output <span class="plus">+</span></summary>
           <div class="ac">The map shows cumulative depth over the period; readouts are the district-wide spatial average.
             The daily series keeps every day. Export the runoff grid as a georeferenced GeoTIFF for GIS.</div></details>
       </div>
-      <div class="credit">Developed by Omkar<br>
+      <div class="credit">Developed by<br>
+        Dr. Omkar, TNAU<br>
         Dr. S. Selvakumar, TNAU<br>
-        Dr. A. Sarangi, Director, ICAR-IIWM</div>
+        Dr. Ravikumar, TNAU<br>
+        Dr. A. Sarangi, Director, ICAR-IIWM<br>
+        Dr. S. Mohanty, ICAR-IIWM</div>
     </div>
   </aside>
 
@@ -370,7 +380,7 @@
       <path d="M20 6 L25 22 L20 18 L15 22 Z" fill="#0B4F6C"/><text x="20" y="34" text-anchor="middle"
       font-family="Space Mono" font-size="9" fill="#0B4F6C">N</text></svg>
     <div class="plate titleplate" id="titleplate"><div class="pk">Active area</div>
-      <div class="pv" id="tpArea"></div><div class="pp" id="tpPeriod"></div></div>
+      <div class="pv" id="tpArea">-</div><div class="pp" id="tpPeriod"></div></div>
     <div class="plate maplegend" id="maplegend"><h4 id="mlTitle">Runoff</h4><div id="mlbody"></div></div>
   </div>
 </div>
@@ -392,7 +402,7 @@
       <g clip-path="url(#cw)" stroke="#0E7C86" fill="none" stroke-linecap="round">
         <path d="M26 66 42 66 52 44 62 70 72 56 96 56" stroke-width="3.6"/></g></svg>
     <div class="t">Runoff Assistant<small>SCS-CN · AI</small></div>
-    <button id="cwmin" title="Minimize"></button>
+    <button id="cwmin" title="Minimize">-</button>
     <button id="cwclose" title="Close">✕</button>
   </div>
   <div class="cwbody" id="chat"></div>
@@ -454,7 +464,7 @@ function countUp(el,t){if(reduce){el.textContent=t.toFixed(1);return;}
 
 async function loadStates(){try{const d=await api('/api/states');
   $('state').innerHTML='<option value="">Select a state</option>'+d.states.map(n=>`<option>${n}</option>`).join('');
-  $('state').disabled=false;}catch(e){showErr('Could not reach the backend  it may be waking from sleep. Try again shortly.');}}
+  $('state').disabled=false;}catch(e){showErr('Could not reach the backend, it may be waking from sleep. Try again shortly.');}}
 async function loadCmip6(){try{const d=await api('/api/cmip6');
   $('model').innerHTML='<option value="">Select model</option>'+d.models.map(n=>`<option>${n}</option>`).join('');
   $('scenario').innerHTML='<option value="">Select scenario</option>'+d.scenarios.map(n=>`<option>${n}</option>`).join('');
@@ -476,11 +486,11 @@ function initDraw(){drawnItems=new L.FeatureGroup().addTo(map);
   map.on(L.Draw.Event.CREATED,e=>{drawnItems.clearLayers();drawnItems.addLayer(e.layer);
     customGeojson=e.layer.toGeoJSON().geometry;
     map.fitBounds(e.layer.getBounds(),{padding:[40,40]});
-    $('status').textContent='Polygon ready  click Run.';});}
+    $('status').textContent='Polygon ready, click Run.';});}
 function showDraw(on){if(!drawControl)return;if(on)map.addControl(drawControl);else map.removeControl(drawControl);}
 function setCustomGeojson(gj,label){customGeojson=gj;drawOutline(gj);
   try{map.fitBounds(outlineLayer.getBounds(),{padding:[40,40]});}catch(e){}
-  $('custstatus').textContent=(label||'Area loaded')+'  ready to run.';$('status').textContent='Custom area ready  click Run.';}
+  $('custstatus').textContent=(label||'Area loaded')+', ready to run.';$('status').textContent='Custom area ready, click Run.';}
 
 // mode switch
 $('modeseg').querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{
@@ -500,9 +510,9 @@ $('state').addEventListener('change',async e=>{const st=e.target.value,dd=$('dis
   dd.disabled=true;dd.innerHTML='<option>Loading…</option>';previewArea();
   try{const d=await api('/api/districts?state='+encodeURIComponent(st));
     dd.innerHTML='<option value="">Whole state</option>'+d.districts.map(n=>`<option>${n}</option>`).join('');
-    dd.disabled=false;$('status').textContent=st+' selected  Run, or pick a district.';}catch(err){showErr(err.message);}});
+    dd.disabled=false;$('status').textContent=st+' selected, Run, or pick a district.';}catch(err){showErr(err.message);}});
 $('district').addEventListener('change',()=>{previewArea();
-  $('status').textContent=($('district').value||$('state').value)+' selected  ready to run.';});
+  $('status').textContent=($('district').value||$('state').value)+' selected, ready to run.';});
 
 // watershed
 async function loadBasins(){try{const d=await api('/api/basins');
@@ -514,13 +524,13 @@ $('basin').addEventListener('change',async e=>{const ba=e.target.value,sb=$('sub
   previewArea();sb.disabled=true;sb.innerHTML='<option>Loading…</option>';
   try{const d=await api('/api/subbasins?basin='+encodeURIComponent(ba));
     sb.innerHTML='<option value="">Whole basin</option>'+d.sub_basins.map(n=>`<option>${n}</option>`).join('');
-    sb.disabled=false;$('status').textContent=ba+' basin selected  Run, or pick a sub-basin.';}catch(e){}});
+    sb.disabled=false;$('status').textContent=ba+' basin selected, Run, or pick a sub-basin.';}catch(e){}});
 $('subbasin').addEventListener('change',async e=>{const sb=e.target.value,ws=$('watershed');
   if(!sb){ws.innerHTML='<option>Select a sub-basin first</option>';ws.disabled=true;previewArea();return;}
   previewArea();ws.disabled=true;ws.innerHTML='<option>Loading…</option>';
   try{const d=await api('/api/watersheds?basin='+encodeURIComponent($('basin').value)+'&sub_basin='+encodeURIComponent(sb));
     ws.innerHTML='<option value="">Whole sub-basin</option>'+d.watersheds.map(n=>`<option>${n}</option>`).join('');
-    ws.disabled=false;$('status').textContent=sb+' sub-basin selected  Run, or pick a watershed.';}catch(e){}});
+    ws.disabled=false;$('status').textContent=sb+' sub-basin selected, Run, or pick a watershed.';}catch(e){}});
 $('watershed').addEventListener('change',()=>{previewArea();});
 
 // custom: draw vs upload
@@ -575,7 +585,7 @@ $('run').addEventListener('click',async()=>{clearErr();const p=curParams();
   if(p.data_source==='future'&&(!p.model||!p.scenario))return showErr('Choose a climate model and scenario for future projections.');
   lastParams=p;bar(true);$('run').disabled=true;$('status').textContent='Computing layers and totals…';
   try{const d=await api('/api/runoff',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
-    renderLayers(d,p);$('status').textContent='Layers ready  computing daily series…';loadSeries(p);loadContext(p);
+    renderLayers(d,p);$('status').textContent='Layers ready, computing daily series…';loadSeries(p);loadContext(p);
   }catch(e){showErr(e.message);$('status').textContent='Run failed. Adjust the inputs and try again.';}
   finally{bar(false);$('run').disabled=false;}});
 
@@ -593,7 +603,7 @@ function renderLayers(d,p){lastResult=d;
 
 function drawLegend(lg,title){const pal=lg.palette,step=(lg.max-lg.min)/pal.length,u=lg.unit||'';
   const rows=pal.map((c,i)=>{const a=lg.min+i*step,b=lg.min+(i+1)*step;
-    const t=i===pal.length-1?'≥ '+a.toFixed(0):a.toFixed(0)+' – '+b.toFixed(0);
+    const t=i===pal.length-1?'≥ '+a.toFixed(0):a.toFixed(0)+' to '+b.toFixed(0);
     return `<div class="lrow"><span class="sw" style="background:#${c}"></span>${t} ${u}</div>`;}).join('');
   $('legend').innerHTML=rows;$('mlTitle').textContent=title+(u?' ('+u+')':'');$('mlbody').innerHTML=rows;$('maplegend').style.display='block';}
 
@@ -625,14 +635,14 @@ async function loadSeries(p){$('chartBlock').style.display='block';$('chartload'
           y1:{position:'right',beginAtZero:true,reverse:true,title:{display:true,text:'Rainfall (mm)',
             font:{family:'Space Mono',size:10},color:'#2563EB'},
             ticks:{font:{family:'Space Mono',size:9},color:'#2563EB'},grid:{display:false},border:{display:false}}}}});
-    $('chartload').style.display='none';$('status').textContent='Done  '+d.n_days+' daily values loaded.';
+    $('chartload').style.display='none';$('status').textContent='Done, '+d.n_days+' daily values loaded.';
   }catch(e){$('chartload').innerHTML='Series failed: '+e.message;}}
 
 $('download').addEventListener('click',async()=>{if(!lastParams)return;const btn=$('download');const t=btn.textContent;
   btn.textContent='Preparing GeoTIFF…';btn.disabled=true;
   try{const d=await api('/api/download',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({...lastParams,band:'runoff',scale:500})});window.open(d.url,'_blank');
-  }catch(e){showErr('Export failed  large districts can exceed the direct-download limit. '+e.message);}
+  }catch(e){showErr('Export failed, large districts can exceed the direct-download limit. '+e.message);}
   finally{btn.textContent=t;btn.disabled=false;}});
 
 async function loadContext(p){
@@ -640,7 +650,7 @@ async function loadContext(p){
   try{const d=await api('/api/context',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)});
     lastContext=d;renderZones(d.runoff_by_zone);
     $('aiBlock').style.display='block';$('chat').innerHTML='';chatHistory=[];
-    addMsg('a','Ask me anything about this area  which part or which month has the most runoff, the soil and land use, locations, or what conservation measures would help.');
+    addMsg('a','Ask me anything about this area, which part or which month has the most runoff, the soil and land use, locations, or what conservation measures would help.');
   }catch(e){}}
 function renderZones(zones){if(!zones||!zones.length)return;
   const max=Math.max(...zones.map(z=>z.runoff_mm))||1;
@@ -668,7 +678,7 @@ async function askAI(text){if(!text)return;
   try{const d=await api('/api/ask',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({question:text,context:buildContext(),history:chatHistory})});
     tip.remove();addMsg('a',d.answer);chatHistory.push({role:'assistant',content:d.answer});
-  }catch(e){tip.remove();addMsg('a','Sorry  '+e.message);}}
+  }catch(e){tip.remove();addMsg('a','Sorry, '+e.message);}}
 $('send').addEventListener('click',()=>{const v=$('q').value.trim();if(v){$('q').value='';askAI(v);}});
 $('q').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=$('q').value.trim();if(v){$('q').value='';askAI(v);}}});
 function openChat(){$('chatwin').classList.add('open');$('greet').style.display='none';$('fab').style.display='none';$('q').focus();}
@@ -687,6 +697,13 @@ $('csv').addEventListener('click',()=>{if(!lastSeries||!lastSeries.length)return
   a.href=url;a.download=(lastArea||'daily').replace(/[^\w]+/g,'_')+'_daily.csv';a.click();URL.revokeObjectURL(url);});
 
 initMap();loadStates();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
 </script>
 </body>
 </html>
